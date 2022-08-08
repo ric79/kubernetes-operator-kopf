@@ -127,6 +127,6 @@ def on_update(spec, name, namespace, logger, **kwargs):
 #   - optional=true
 # ------------------------
 @kopf.on.delete('operators.mytest.it', 'v1', 'textanalyzers', optional=True)
-def delete(spec, name, namespace, logger, **kwargs):
+def on_delete(spec, name, namespace, logger, **kwargs):
     text = spec['text']
     logging.info("DELETE - " + text)
