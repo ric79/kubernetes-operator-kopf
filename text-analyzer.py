@@ -1,9 +1,3 @@
-$ python3.9 -m venv ~/text-analyzer-env
-$ source ~/text-analyzer-env/bin/activate
-(text-analyzer-env) $ python3.9 -m pip install https://raw.githubusercontent.com/ric79/kubernetes-operator-kopf/main/requirements.txt
-
-(text-analyzer-env) $ kopf --#!/usr/bin/env python3
-
 import kopf
 import kubernetes.config as k8s_config
 import kubernetes.client as k8s_client
