@@ -1,8 +1,0 @@
-apiVersion: "operators.mytest.it/v1"
-kind: TextAnalyzer
-metadata:
-  name: test-analyzer-1
-  namespace: mytest
-spec:
-  text: AAA BBB CCC
-  hash: MD5
