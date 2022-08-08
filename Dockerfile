@@ -1,7 +1,7 @@
 FROM python:3.9-alpine
 
-#ARG http_proxy
-#ARG https_proxy
+ARG http_proxy
+ARG https_proxy
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
