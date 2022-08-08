@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: textanalyzers-operator
+  namespace: mytest
+  labels:
+    app: textanalyzers-operator
+spec:
+  replicas: 1 # make sure to not have more than one replicas
+  strategy:
+    type: Recreate # make sure the old pod is being killed before the new pod is being created
+  selector:
+    matchLabels:
+      app: textanalyzers-operator
+  template:
+    metadata:
+      labels:
+        app: textanalyzers-operator
+    spec:
+      serviceAccountName: textanalyzers-operator-account
+      containers:
+      - name: textanalyzers-operator
+        image: docker.io/mytest/text-analyzer
+        imagePullPolicy: Never
+        args: ["-n", "mytest"]
