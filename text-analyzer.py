@@ -17,7 +17,6 @@ def compute_hash(_text, _hash):
    if _hash == "SHA512":
        return hashlib.sha512(bytes(_text, encoding='utf-8')).hexdigest()
 
-       
 text_analyzer_crd = k8s_client.V1CustomResourceDefinition(
     api_version="apiextensions.k8s.io/v1",
     kind="CustomResourceDefinition",
@@ -96,7 +95,6 @@ except k8s_client.rest.ApiException as e:
         logging.info("CRD already exists")
     else:
         raise e
-
 
 # ------------------------
 # CREATE
