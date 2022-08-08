@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mytest
+  labels:
+    name: mytest
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  # name must match the spec fields below, and be in the form: <plural>.<group>
+  name: textanalyzers.operators.mytest.it
+  namespace: mytest
+spec:
+  # group name to use for REST API: /apis/<group>/<version>
+  group: operators.mytest.it
+  # list of versions supported by this CustomResourceDefinition
+  versions:
+    - name: v1
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                text:
+                  type: string
+                hash:
+                  type: string
+                  enum: ["CRC32", "MD5", "SHA512"]
+            # Kopf specific      
+            # https://kopf.readthedocs.io/en/stable/walkthrough/updates/
+            status:
+               x-kubernetes-preserve-unknown-fields: true
+      additionalPrinterColumns:
+      - name: version
+        type: string
+        jsonPath: .apiVersion
+        priority: 0
+      - name: hash
+        type: string
+        jsonPath: .spec.hash
+        priority: 1
+      - name: text
+        type: string
+        jsonPath: .spec.text
+        priority: 1
+                  
+  # either Namespaced or Cluster
+  scope: Namespaced
+  names:
+    # plural name to be used in the URL: /apis/<group>/<version>/<plural>
+    plural: textanalyzers
+    # singular name to be used as an alias on the CLI and for display
+    singular: textanalyzer
+    # kind is normally the CamelCased singular type. Your resource manifests use this.
+    kind: TextAnalyzer
+    # shortNames allow shorter string to match your resource on the CLI
+    shortNames:
+    - tan
