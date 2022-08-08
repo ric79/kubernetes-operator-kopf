@@ -1,0 +1,104 @@
+#
+# Pay attention to: namespace (mytest) and apiGroup operators.mytest.it
+#
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  name: textanalyzers-operator-account
+  namespace: mytest
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: textanalyzers-operator-role-cluster
+rules:
+
+  # Framework: knowing which other operators are running (i.e. peering).
+  - apiGroups: [operators.mytest.it]
+    resources: [clusterkopfpeerings]
+    verbs: [list, watch, patch, get]
+
+  # Framework: runtime observation of namespaces & CRDs (addition/deletion).
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    # verbs: [list, watch]
+    # My application create the CRD.
+    # Avoid error: cannot create resource "customresourcedefinitions" in API group "apiextensions.k8s.io" at the cluster scope
+    verbs: [get, list, watch, create, update, patch, delete]
+  - apiGroups: [""]
+    resources: [namespaces]
+    verbs: [list, watch]
+
+  # Framework: admission webhook configuration management.
+  - apiGroups: [admissionregistration.k8s.io/v1, admissionregistration.k8s.io/v1beta1]
+    resources: [validatingwebhookconfigurations, mutatingwebhookconfigurations]
+    verbs: [create, patch]
+
+  # Application: read-only access for watching cluster-wide.
+  - apiGroups: [operators.mytest.it]
+    resources: [textanalyzers]
+    verbs: [list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: "mytest"
+  name: textanalyzers-operator-role-namespaced
+rules:
+
+  # Framework: knowing which other operators are running (i.e. peering).
+  - apiGroups: [operators.mytest.it]
+    resources: [kopfpeerings]
+    verbs: [list, watch, patch, get]
+
+  # Framework: posting the events about the handlers progress/errors.
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
+
+  # Application: watching & handling for the custom resource we declare.
+  - apiGroups: [operators.mytest.it]
+    resources: [textanalyzers]
+    verbs: [list, watch, patch]
+
+  # ----------------------------------------------------------------------
+  #
+  # Application: other resources it produces and manipulates.
+  # 
+  # Not useful in my case....
+  # ----------------------------------------------------------------------
+  # Here, we create Jobs+PVCs+Pods, but we do not patch/update/delete them ever.
+  - apiGroups: [batch, extensions]
+    resources: [jobs]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [pods, persistentvolumeclaims]
+    verbs: [create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: textanalyzers-operator-rolebinding-cluster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: textanalyzers-operator-role-cluster
+subjects:
+  - kind: ServiceAccount
+    name: textanalyzers-operator-account
+    namespace: "mytest"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: "mytest"
+  name: textanalyzers-operator-rolebinding-namespaced
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: textanalyzers-operator-role-namespaced
+subjects:
+  - kind: ServiceAccount
+    name: textanalyzers-operator-account
