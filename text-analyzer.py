@@ -124,6 +124,7 @@ def on_update(spec, name, namespace, logger, **kwargs):
 # DELETE
 # Freeze caused by handlers
 #   - https://kopf.readthedocs.io/en/latest/troubleshooting/#finalizers-blocking-deletion
+#     kubectl patch textanalyzers.operators.mytest.it test-analyzer-1 -p '{"metadata": {"finalizers": []}}' --type merge
 #   - optional=true
 # ------------------------
 @kopf.on.delete('operators.mytest.it', 'v1', 'textanalyzers', optional=True)
